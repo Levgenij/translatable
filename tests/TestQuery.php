@@ -30,20 +30,20 @@ class TestQuery extends TestCase
             'select "posts".*, "posts_i18n"."title", "posts_i18n"."body" from "posts" '.
             'left join "posts_i18n" on "posts_i18n"."post_id" = "posts"."id" and "posts_i18n"."locale" = ?';
 
-
         $this->assertEquals($query->toSql(), $expected);
         $this->assertEquals(['de'], $query->getBindings());
     }
 
     public function testTranslationsAreJoinedOnBelongsToRelation()
     {
-        $post = new Post();
+        $post = new Post;
+
         $post->user_id = 1;
 
         $expected =
             'select "users".*, "users_i18n"."bio" from "users" '.
             'left join "users_i18n" on "users_i18n"."user_id" = "users"."id" and "users_i18n"."locale" = ? '.
-            'where "users"."id" = ?';
+            'where "users"."id" = ? and "users"."deleted_at" is null';
 
         $this->assertEquals($post->user()->toSql(), $expected);
         $this->assertEquals(['en', 1], $post->user()->getBindings());
@@ -51,7 +51,7 @@ class TestQuery extends TestCase
 
     public function testTranslationsAreJoinedOnHasManyRelation()
     {
-        $user = new User();
+        $user = new User;
 
         $expected =
             'select "posts".*, "posts_i18n"."title", "posts_i18n"."body" from "posts" '.
@@ -65,16 +65,16 @@ class TestQuery extends TestCase
     public function testBasicWhereTranslated()
     {
         $queryAnd = Post::where('title', 'my title');
+
         $queryOr = Post::where('is_active', 1)->orWhere('title', 'my title');
 
         $expected =
             'select "posts".*, "posts_i18n"."title", "posts_i18n"."body" from "posts" '.
             'left join "posts_i18n" on "posts_i18n"."post_id" = "posts"."id" and "posts_i18n"."locale" = ? ';
 
-        $this->assertEquals($queryAnd->toSql(), $expected . 'where "posts_i18n"."title" = ?');
+        $this->assertEquals($queryAnd->toSql(), $expected.'where "posts_i18n"."title" = ?');
         $this->assertEquals(['en', 'my title'], $queryAnd->getBindings());
-
-        $this->assertEquals($queryOr->toSql(), $expected . 'where "is_active" = ? or "posts_i18n"."title" = ?');
+        $this->assertEquals($queryOr->toSql(), $expected.'where "is_active" = ? or "posts_i18n"."title" = ?');
         $this->assertEquals(['en', 1, 'my title'], $queryOr->getBindings());
     }
 
@@ -85,11 +85,26 @@ class TestQuery extends TestCase
 
         $expected = $this->getJoinWithFallbackSql();
 
-        $this->assertEquals($queryAnd->toSql(), $expected . ' where ifnull("posts_i18n"."title", "posts_i18n_fallback"."title") = ?');
+        $this->assertEquals(
+            $queryAnd->toSql(),
+            $expected.' where ifnull("posts_i18n"."title", "posts_i18n_fallback"."title") = ?'
+        );
         $this->assertEquals(['de', 'en', 'my title'], $queryAnd->getBindings());
-
-        $this->assertEquals($queryOr->toSql(), $expected . ' where "is_active" = ? or ifnull("posts_i18n"."title", "posts_i18n_fallback"."title") = ?');
+        $this->assertEquals(
+            $queryOr->toSql(),
+            $expected.' where "is_active" = ? or ifnull("posts_i18n"."title", "posts_i18n_fallback"."title") = ?'
+        );
         $this->assertEquals(['de', 'en', 1, 'my title'], $queryOr->getBindings());
+    }
+
+    public function testQualifiesTranslatedPropertiesCorrectly()
+    {
+        $this->assertEquals('users_i18n.bio', User::query()->qualifyColumn('bio'));
+    }
+
+    public function testQualifiesUntranslatedPropertiesCorrectly()
+    {
+        $this->assertEquals('users.name', User::query()->qualifyColumn('name'));
     }
 
     protected function getJoinWithFallbackSql()
@@ -97,9 +112,9 @@ class TestQuery extends TestCase
         return 'select "posts".*, '.
             'ifnull("posts_i18n"."title", "posts_i18n_fallback"."title") as "title", '.
             'ifnull("posts_i18n"."body", "posts_i18n_fallback"."body") as "body" from "posts" '.
-        'left join "posts_i18n" on '.
+            'left join "posts_i18n" on '.
             '"posts_i18n"."post_id" = "posts"."id" and "posts_i18n"."locale" = ? '.
-        'left join "posts_i18n" as "posts_i18n_fallback" on '.
+            'left join "posts_i18n" as "posts_i18n_fallback" on '.
             '"posts_i18n_fallback"."post_id" = "posts"."id" and "posts_i18n_fallback"."locale" = ?';
     }
 }

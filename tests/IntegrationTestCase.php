@@ -1,11 +1,11 @@
 <?php
 
-use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Schema\Blueprint;
 
 abstract class IntegrationTestCase extends TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         parent::setUp();
 
@@ -13,6 +13,7 @@ abstract class IntegrationTestCase extends TestCase
             $table->increments('id');
             $table->string('name');
             $table->integer('age')->nullable();
+            $table->softDeletes();
             $table->timestamps();
         });
 
@@ -55,7 +56,7 @@ abstract class IntegrationTestCase extends TestCase
         });
     }
 
-    public function tearDown()
+    public function tearDown(): void
     {
         parent::tearDown();
 
@@ -63,13 +64,17 @@ abstract class IntegrationTestCase extends TestCase
         $this->schema()->drop('users_i18n');
         $this->schema()->drop('posts');
         $this->schema()->drop('posts_i18n');
+        $this->schema()->drop('tags');
+        $this->schema()->drop('tags_i18n');
+        $this->schema()->drop('post_tag');
     }
-
 
     /**
      * Get a database connection instance.
      *
-     * @return \Illuminate\Database\Connection
+     * @param string|null $connection
+     *
+     * @return \Illuminate\Database\ConnectionInterface
      */
     protected function connection($connection = 'default')
     {
@@ -77,7 +82,9 @@ abstract class IntegrationTestCase extends TestCase
     }
 
     /**
-     * Get a schema builder instance.
+     * Get a schema builder instance for the connection.
+     *
+     * @param string|null $connection
      *
      * @return \Illuminate\Database\Schema\Builder
      */

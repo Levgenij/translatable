@@ -1,21 +1,42 @@
 {
-  "name": "levgenij/translatable",
-  "description": "Translatable eloquent models.",
+  "name": "spletna-postaja/translatable",
+  "description": "Translatable Eloquent models.",
   "keywords": ["translatable", "eloquent", "laravel", "model", "translate", "i18n"],
   "license": "MIT",
   "authors": [
     {
       "name": "Anže Časar",
-      "email": "anze.casar@gmail.com"
+      "email": "anze.casar@gmail.com",
+      "homepage": "https://github.com/acasar",
+      "role": "Lead Developer"
+    },
+    {
+      "name": "Spletna postaja",
+      "email": "razvijalec@spletna-postaja.com",
+      "homepage": "https://www.spletna-postaja.com",
+      "role": "Maintainer"
+    },
+    {
+      "name": "Blaž Oražem",
+      "email": "blaz@orazem.si",
+      "homepage": "https://www.orazem.si",
+      "role": "Developer"
     }
   ],
   "require": {
-    "php": ">=5.5.0",
-    "illuminate/database": "~5.2"
+    "php": ">=7.3",
+    "illuminate/database": "^6.0"
   },
   "require-dev": {
-    "phpunit/phpunit": "5.1.*",
-    "phpunit/php-timer": "1.*"
+    "phpunit/phpunit": "^8.0",
+    "phpunit/php-timer": "^2.0"
+  },
+  "extra": {
+    "laravel": {
+      "providers": [
+        "Laraplus\\Data\\TranslatableServiceProvider"
+      ]
+    }
   },
   "autoload": {
     "psr-4": {
@@ -27,8 +48,5 @@
       "tests/TestCase.php",
       "tests/IntegrationTestCase.php"
     ]
-  },
-  "suggest": {
-    "spletna-postaja/translatable": "laraplus/translatable is deprecated and is not maintained any more.  Please use spletnapostaja/translatable instead."
   }
 }

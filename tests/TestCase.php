@@ -1,29 +1,29 @@
 <?php
 
-use Illuminate\Database\Capsule\Manager as Capsule;
 use Laraplus\Data\TranslatableConfig;
+use Illuminate\Database\Capsule\Manager as Capsule;
 
-abstract class TestCase extends PHPUnit_Framework_TestCase
+abstract class TestCase extends PHPUnit\Framework\TestCase
 {
-    public function setUp()
+    public function setUp(): void
     {
         $capsule = new Capsule;
 
         $capsule->addConnection([
-            'driver' => 'sqlite',
+            'driver'   => 'sqlite',
             'database' => ':memory:',
-            'prefix' => ''
+            'prefix'   => '',
         ]);
 
         $capsule->setAsGlobal();
 
         $capsule->bootEloquent();
 
-        TranslatableConfig::currentLocaleGetter(function(){
+        TranslatableConfig::currentLocaleGetter(function () {
             return 'en';
         });
 
-        TranslatableConfig::fallbackLocaleGetter(function(){
+        TranslatableConfig::fallbackLocaleGetter(function () {
             return 'en';
         });
 
