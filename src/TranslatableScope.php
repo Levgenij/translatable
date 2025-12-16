@@ -1,44 +1,41 @@
 <?php
 
-namespace Laraplus\Data;
+declare(strict_types=1);
 
-use Illuminate\Support\Str;
+namespace Levgenij\Translatable;
+
+use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Eloquent\Scope;
 use Illuminate\Database\Query\Expression;
-use Illuminate\Database\Query\JoinClause;
 use Illuminate\Database\Query\Grammars\Grammar;
-use Illuminate\Database\Eloquent\Model as Eloquent;
 use Illuminate\Database\Query\Grammars\SqlServerGrammar;
-use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Query\JoinClause;
+use Illuminate\Support\Str;
 
 class TranslatableScope implements Scope
 {
-    protected $table;
+    protected string $table;
 
-    protected $i18nTable;
+    protected string $i18nTable;
 
-    protected $locale;
+    protected string $locale;
 
-    protected $fallback;
+    protected string $fallback;
 
-    protected $joinType = 'leftJoin';
+    protected string $joinType = 'leftJoin';
 
     /**
      * Apply the scope to a given Eloquent query builder.
-     *
-     * @param EloquentBuilder $builder
-     * @param Eloquent $model
-     *
-     * @return void
      */
-    public function apply(EloquentBuilder $builder, Eloquent $model)
+    public function apply(EloquentBuilder $builder, Eloquent $model): void
     {
         $this->table = $model->getTable();
         $this->locale = $model->getLocale();
         $this->i18nTable = $model->getI18nTable();
         $this->fallback = $model->getFallbackLocale();
 
-        if (!Str::startsWith($this->table, 'laravel_reserved_')) {
+        if (! Str::startsWith($this->table, 'laravel_reserved_')) {
             $this->createJoin($builder, $model);
             $this->createWhere($builder, $model);
             $this->createSelect($builder, $model);
@@ -47,11 +44,8 @@ class TranslatableScope implements Scope
 
     /**
      * Create the join clause.
-     *
-     * @param EloquentBuilder $builder
-     * @param Eloquent $model
      */
-    protected function createJoin(EloquentBuilder $builder, Eloquent $model)
+    protected function createJoin(EloquentBuilder $builder, Eloquent $model): void
     {
         $joinType = $this->getJoinType($model);
         $clause = $this->getJoinClause($model, $this->locale, $this->i18nTable);
@@ -67,28 +61,18 @@ class TranslatableScope implements Scope
 
     /**
      * Return the join type.
-     *
-     * @param Eloquent $model
-     *
-     * @return string
      */
-    protected function getJoinType(Eloquent $model)
+    protected function getJoinType(Eloquent $model): string
     {
-        $innerJoin = !$model->shouldFallback() && $model->getOnlyTranslated();
+        $innerJoin = ! $model->shouldFallback() && $model->getOnlyTranslated();
 
         return $innerJoin ? 'join' : 'leftJoin';
     }
 
     /**
      * Return the join clause.
-     *
-     * @param Eloquent $model
-     * @param string $locale
-     * @param string $alias
-     *
-     * @return callable
      */
-    protected function getJoinClause(Eloquent $model, $locale, $alias)
+    protected function getJoinClause(Eloquent $model, string $locale, string $alias): callable
     {
         return function (JoinClause $join) use ($model, $locale, $alias) {
             $primary = $model->getKeyName();
@@ -102,11 +86,8 @@ class TranslatableScope implements Scope
 
     /**
      * Create the where clause.
-     *
-     * @param EloquentBuilder $builder
-     * @param Eloquent $model
      */
-    protected function createWhere(EloquentBuilder $builder, Eloquent $model)
+    protected function createWhere(EloquentBuilder $builder, Eloquent $model): void
     {
         if ($model->getOnlyTranslated() && $model->shouldFallback()) {
             $key = $model->getForeignKey();
@@ -120,11 +101,8 @@ class TranslatableScope implements Scope
 
     /**
      * Create the select clause.
-     *
-     * @param EloquentBuilder $builder
-     * @param Eloquent $model
      */
-    protected function createSelect(EloquentBuilder $builder, Eloquent $model)
+    protected function createSelect(EloquentBuilder $builder, Eloquent $model): void
     {
         if ($builder->getQuery()->columns) {
             return;
@@ -137,16 +115,11 @@ class TranslatableScope implements Scope
 
     /**
      * Format the columns.
-     *
-     * @param EloquentBuilder $builder
-     * @param Eloquent $model
-     *
-     * @return array
      */
-    protected function formatColumns(EloquentBuilder $builder, Eloquent $model)
+    protected function formatColumns(EloquentBuilder $builder, Eloquent $model): array
     {
-        $map = function ($field) use ($builder, $model) {
-            if (!$model->shouldFallback()) {
+        $map = function (string $field) use ($builder, $model): string|Expression {
+            if (! $model->shouldFallback()) {
                 return "{$this->i18nTable}.{$field}";
             }
 
@@ -162,24 +135,18 @@ class TranslatableScope implements Scope
 
     /**
      * Return string based on null type.
-     *
-     * @param Grammar $grammar
-     *
-     * @return string
      */
-    protected function getIfNull(Grammar $grammar)
+    protected function getIfNull(Grammar $grammar): string
     {
         return $grammar instanceof SqlServerGrammar ? 'isnull' : 'ifnull';
     }
 
     /**
      * Extend the builder.
-     *
-     * @param EloquentBuilder $builder
      */
-    public function extend(EloquentBuilder $builder)
+    public function extend(EloquentBuilder $builder): void
     {
-        $builder->macro('onlyTranslated', function (EloquentBuilder $builder, $locale = null) {
+        $builder->macro('onlyTranslated', function (EloquentBuilder $builder, ?string $locale = null) {
             $builder->getModel()->setOnlyTranslated(true);
 
             if ($locale) {
@@ -195,7 +162,7 @@ class TranslatableScope implements Scope
             return $builder;
         });
 
-        $builder->macro('withFallback', function (EloquentBuilder $builder, $fallbackLocale = null) {
+        $builder->macro('withFallback', function (EloquentBuilder $builder, ?string $fallbackLocale = null) {
             $builder->getModel()->setWithFallback(true);
 
             if ($fallbackLocale) {
@@ -211,7 +178,7 @@ class TranslatableScope implements Scope
             return $builder;
         });
 
-        $builder->macro('translateInto', function (EloquentBuilder $builder, $locale) {
+        $builder->macro('translateInto', function (EloquentBuilder $builder, ?string $locale) {
             if ($locale) {
                 $builder->getModel()->setLocale($locale);
             }

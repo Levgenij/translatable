@@ -1,52 +1,41 @@
 {
-  "name": "spletna-postaja/translatable",
-  "description": "Translatable Eloquent models.",
-  "keywords": ["translatable", "eloquent", "laravel", "model", "translate", "i18n"],
-  "license": "MIT",
-  "authors": [
-    {
-      "name": "Anže Časar",
-      "email": "anze.casar@gmail.com",
-      "homepage": "https://github.com/acasar",
-      "role": "Lead Developer"
+    "name": "levgenij/laravel-translatable",
+    "description": "Translatable Eloquent models with separate translation tables.",
+    "keywords": ["translatable", "eloquent", "laravel", "model", "translate", "i18n"],
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Levgenij",
+            "role": "Maintainer"
+        }
+    ],
+    "require": {
+        "php": "^8.2",
+        "illuminate/database": "^11.0|^12.0",
+        "illuminate/support": "^11.0|^12.0",
+        "illuminate/cache": "^11.0|^12.0"
     },
-    {
-      "name": "Spletna postaja",
-      "email": "razvijalec@spletna-postaja.com",
-      "homepage": "https://www.spletna-postaja.com",
-      "role": "Maintainer"
+    "require-dev": {
+        "phpunit/phpunit": "^11.0",
+        "orchestra/testbench": "^9.0|^10.0"
     },
-    {
-      "name": "Blaž Oražem",
-      "email": "blaz@orazem.si",
-      "homepage": "https://www.orazem.si",
-      "role": "Developer"
-    }
-  ],
-  "require": {
-    "php": ">=7.3",
-    "illuminate/database": "^6.0"
-  },
-  "require-dev": {
-    "phpunit/phpunit": "^8.0",
-    "phpunit/php-timer": "^2.0"
-  },
-  "extra": {
-    "laravel": {
-      "providers": [
-        "Laraplus\\Data\\TranslatableServiceProvider"
-      ]
-    }
-  },
-  "autoload": {
-    "psr-4": {
-      "Laraplus\\Data\\": "src/"
-    }
-  },
-  "autoload-dev": {
-    "classmap": [
-      "tests/TestCase.php",
-      "tests/IntegrationTestCase.php"
-    ]
-  }
+    "extra": {
+        "laravel": {
+            "providers": [
+                "Levgenij\\Translatable\\TranslatableServiceProvider"
+            ]
+        }
+    },
+    "autoload": {
+        "psr-4": {
+            "Levgenij\\Translatable\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Levgenij\\Translatable\\Tests\\": "tests/"
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true
 }

@@ -1,48 +1,38 @@
 <?php
 
-namespace Laraplus\Data;
+declare(strict_types=1);
 
-use Illuminate\Database\Eloquent\Model as Eloquent;
+namespace Levgenij\Translatable;
+
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
+use Illuminate\Database\Eloquent\Model as Eloquent;
 
 class TranslationModel extends Eloquent
 {
     /**
      * Translation model does not include timestamps by default.
-     *
-     * @var bool
      */
     public $timestamps = false;
 
     /**
      * Name of the table (will be set dynamically).
-     *
-     * @var string
      */
     protected $table = null;
 
     /**
      * Indicates if the IDs are auto-incrementing.
-     *
-     * @var bool
      */
     public $incrementing = false;
 
     /**
      * Locale key name.
-     *
-     * @var string
      */
-    protected $localeKey = 'locale';
+    protected string $localeKey = 'locale';
 
     /**
      * Set the keys for a save update query.
-     *
-     * @param EloquentBuilder $query
-     *
-     * @return EloquentBuilder
      */
-    protected function setKeysForSaveQuery(EloquentBuilder $query)
+    protected function setKeysForSaveQuery($query): EloquentBuilder
     {
         $query->where($this->getKeyName(), '=', $this->getKeyForSaveQuery());
         $query->where($this->localeKey, '=', $this->{$this->localeKey});
@@ -52,12 +42,8 @@ class TranslationModel extends Eloquent
 
     /**
      * Set the locale key.
-     *
-     * @param $localeKey
-     *
-     * @return $this
      */
-    public function setLocaleKey($localeKey)
+    public function setLocaleKey(string $localeKey): static
     {
         $this->localeKey = $localeKey;
 

@@ -1,6 +1,8 @@
 <?php
 
-namespace Laraplus\Data;
+declare(strict_types=1);
+
+namespace Levgenij\Translatable;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 
@@ -8,12 +10,8 @@ class Builder extends EloquentBuilder
 {
     /**
      * Update a record in the database.
-     *
-     * @param array $values
-     *
-     * @return int
      */
-    public function update(array $values)
+    public function update(array $values): int
     {
         $updated = 0;
         $modelKey = $this->getModel()->getKey();
@@ -35,14 +33,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Increment a column's value by a given amount.
-     *
-     * @param string $column
-     * @param int $amount
-     * @param array $extra
-     *
-     * @return int
      */
-    public function increment($column, $amount = 1, array $extra = [])
+    public function increment($column, $amount = 1, array $extra = []): int
     {
         $extra = $this->addUpdatedAtColumn($extra);
 
@@ -51,14 +43,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Decrement a column's value by a given amount.
-     *
-     * @param string $column
-     * @param int $amount
-     * @param array $extra
-     *
-     * @return int
      */
-    public function decrement($column, $amount = 1, array $extra = [])
+    public function decrement($column, $amount = 1, array $extra = []): int
     {
         $extra = $this->addUpdatedAtColumn($extra);
 
@@ -67,12 +53,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Insert a new record into the database.
-     *
-     * @param array $values
-     *
-     * @return bool
      */
-    public function insert(array $values)
+    public function insert(array $values): bool
     {
         [$values, $i18nValues] = $this->filterValues($values);
 
@@ -85,13 +67,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Insert a new record and get the value of the primary key.
-     *
-     * @param array $values
-     * @param string $sequence
-     *
-     * @return int
      */
-    public function insertGetId(array $values, $sequence = null)
+    public function insertGetId(array $values, $sequence = null): int|false
     {
         [$values, $i18nValues] = $this->filterValues($values);
 
@@ -106,10 +83,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Delete a record from the database.
-     *
-     * @return mixed
      */
-    public function delete()
+    public function delete(): mixed
     {
         if (isset($this->onDelete)) {
             return call_user_func($this->onDelete, $this);
@@ -120,22 +95,16 @@ class Builder extends EloquentBuilder
 
     /**
      * Run the default delete function on the builder.
-     *
-     * @return mixed
      */
-    public function forceDelete()
+    public function forceDelete(): mixed
     {
         return $this->i18nDeleteQuery(false)->delete() & $this->query->delete();
     }
 
     /**
      * Filters translatable values from non-translatable.
-     *
-     * @param array $values
-     *
-     * @return array
      */
-    protected function filterValues(array $values)
+    protected function filterValues(array $values): array
     {
         $attributes = $this->model->translatableAttributes();
         $translatable = [];
@@ -153,15 +122,10 @@ class Builder extends EloquentBuilder
 
     /**
      * Insert translation.
-     *
-     * @param array $values
-     * @param mixed $key
-     *
-     * @return bool
      */
-    protected function insertI18n(array $values, $key)
+    protected function insertI18n(array $values, mixed $key): bool
     {
-        if (count($values) == 0) {
+        if (count($values) === 0) {
             return true;
         }
 
@@ -173,13 +137,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Update values in base table.
-     *
-     * @param array $values
-     * @param array $ids
-     *
-     * @return mixed
      */
-    private function updateBase(array $values, array $ids)
+    private function updateBase(array $values, array $ids): int
     {
         $query = $this->model
             ->newQuery()
@@ -191,16 +150,11 @@ class Builder extends EloquentBuilder
 
     /**
      * Update translations.
-     *
-     * @param array $values
-     * @param array $ids
-     *
-     * @return bool
      */
-    protected function updateI18n(array $values, array $ids)
+    protected function updateI18n(array $values, array $ids): int
     {
-        if (count($values) == 0) {
-            return true;
+        if (count($values) === 0) {
+            return 0;
         }
 
         $updated = 0;
@@ -215,7 +169,7 @@ class Builder extends EloquentBuilder
 
                 $updated += $query->update($values);
             } else {
-                $updated += $this->insertI18n($values, $id);
+                $updated += $this->insertI18n($values, $id) ? 1 : 0;
             }
         }
 
@@ -224,10 +178,8 @@ class Builder extends EloquentBuilder
 
     /**
      * Get the query builder instance for translation table.
-     *
-     * @return \Illuminate\Database\Query\Builder
      */
-    public function i18nQuery()
+    public function i18nQuery(): \Illuminate\Database\Query\Builder
     {
         $query = $this->getModel()->newQueryWithoutScopes()->getQuery();
 
@@ -238,28 +190,23 @@ class Builder extends EloquentBuilder
 
     /**
      * Get the delete query instance for translation table.
-     *
-     * @param bool $withGlobalScopes
-     *
-     * @return \Illuminate\Database\Query\Builder
      */
-    protected function i18nDeleteQuery($withGlobalScopes = true)
+    protected function i18nDeleteQuery(bool $withGlobalScopes = true): \Illuminate\Database\Query\Builder
     {
         $subQuery = $withGlobalScopes ? $this->toBase() : $this->getQuery();
 
         $subQuery->select($this->model->getQualifiedKeyName());
 
         return $this->i18nQuery()->whereIn(
-            $this->model->getForeignKey(), $subQuery->pluck($this->model->getKeyName())
+            $this->model->getForeignKey(),
+            $subQuery->pluck($this->model->getKeyName())
         );
     }
 
     /**
      * Get the base query without translations.
-     *
-     * @return \Illuminate\Database\Query\Builder
      */
-    protected function noTranslationsQuery()
+    protected function noTranslationsQuery(): \Illuminate\Database\Query\Builder
     {
         return $this->withoutGlobalScope(TranslatableScope::class)->toBase();
     }
