@@ -104,13 +104,20 @@ class TranslatableScope implements Scope
      */
     protected function createSelect(EloquentBuilder $builder, Eloquent $model): void
     {
-        if ($builder->getQuery()->columns) {
+        $select = $this->formatColumns($builder, $model);
+
+        if (empty($select)) {
             return;
         }
 
-        $select = $this->formatColumns($builder, $model);
-
-        $builder->select(array_merge([$this->table.'.*'], $select));
+        if (! $builder->getQuery()->columns) {
+            // No columns set yet - add all columns including translations
+            $builder->select(array_merge([$this->table.'.*'], $select));
+        } else {
+            // Columns already set (e.g., by withCount) - add translations
+            // Laravel will handle duplicates gracefully, so we always add them
+            $builder->addSelect($select);
+        }
     }
 
     /**
