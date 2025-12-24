@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Levgenij\Translatable;
+namespace Levgenij\LaravelTranslatable;
 
 use Closure;
 use Exception;

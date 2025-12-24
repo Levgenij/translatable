@@ -34,7 +34,7 @@ To enable translations in your models, you first need to prepare your schema acc
 [convention](#creating-migrations). After that you can pull in the ``Translatable`` trait:
 
 ```php
-use Levgenij\Translatable\Translatable;
+use Levgenij\LaravelTranslatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -86,7 +86,7 @@ This fork continues development with the following improvements:
 
 - **Modern PHP support**: PHP 8.2+ with strict types and modern syntax
 - **Latest Laravel support**: Laravel 11 and Laravel 12 compatibility
-- **New namespace**: Changed from `Laraplus\Data` to `Levgenij\Translatable`
+- **New namespace**: Changed from `Laraplus\Data` to `Levgenij\LaravelTranslatable`
 - **Bug fixes**: Fixed `withCount()` compatibility - now correctly adds translations when columns are already set
 - **Code quality**: Added `declare(strict_types=1)`, strict parameter and return type declarations
 
@@ -133,14 +133,14 @@ The package will be auto-discovered in Laravel although you can still manually a
 ```php
 'providers' => [
     // Other providers
-    Levgenij\Translatable\TranslatableServiceProvider::class,
+    Levgenij\LaravelTranslatable\TranslatableServiceProvider::class,
 ],
 ```
 
 Optionally you can configure some other options by publishing the ``translatable.php`` configuration file:
 
 ```
-php artisan vendor:publish --provider="Levgenij\Translatable\TranslatableServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Levgenij\LaravelTranslatable\TranslatableServiceProvider" --tag="config"
 ```
 
 Open the configuration file to check all available settings:
@@ -205,7 +205,7 @@ tables only) and for incrementing keys (not allowed on translation tables).**
 To make your models aware of the translated attributes you need to pull in the ``Translatable`` trait:
 
 ```php
-use Levgenij\Translatable\Translatable;
+use Levgenij\LaravelTranslatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model

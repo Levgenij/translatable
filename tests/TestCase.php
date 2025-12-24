@@ -1,6 +1,6 @@
 <?php
 
-use Laraplus\Data\TranslatableConfig;
+use Levgenij\LaravelTranslatable\TranslatableConfig;
 use Illuminate\Database\Capsule\Manager as Capsule;
 
 abstract class TestCase extends PHPUnit\Framework\TestCase

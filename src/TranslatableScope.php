@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-namespace Levgenij\Translatable;
+namespace Levgenij\LaravelTranslatable;
 
 use Illuminate\Database\Eloquent\Builder as EloquentBuilder;
 use Illuminate\Database\Eloquent\Model as Eloquent;

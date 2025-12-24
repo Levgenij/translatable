@@ -1,6 +1,6 @@
 <?php
 
-use Laraplus\Data\Translatable;
+use Levgenij\LaravelTranslatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Tag extends Model

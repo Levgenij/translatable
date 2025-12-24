@@ -22,18 +22,18 @@
     "extra": {
         "laravel": {
             "providers": [
-                "Levgenij\\Translatable\\TranslatableServiceProvider"
+                "Levgenij\\LaravelTranslatable\\TranslatableServiceProvider"
             ]
         }
     },
     "autoload": {
         "psr-4": {
-            "Levgenij\\Translatable\\": "src/"
+            "Levgenij\\LaravelTranslatable\\": "src/"
         }
     },
     "autoload-dev": {
         "psr-4": {
-            "Levgenij\\Translatable\\Tests\\": "tests/"
+            "Levgenij\\LaravelTranslatable\\Tests\\": "tests/"
         }
     },
     "minimum-stability": "stable",
