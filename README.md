@@ -1,13 +1,8 @@
 # Translatable Eloquent models
 
-[![Total Downloads](https://img.shields.io/packagist/dt/spletna-postaja/translatable?label=Downloads&style=flat-square&cacheSeconds=600)](https://packagist.org/packages/spletna-postaja/translatable)
-[![Build Status](https://img.shields.io/travis/spletna-postaja/translatable/master?label=Build&style=flat-square&cacheSeconds=600)](https://travis-ci.org/spletna-postaja/translatable) 
-[![CircleCI](https://img.shields.io/circleci/build/github/spletna-postaja/translatable/master?label=CircleCI&style=flat-square&cacheSeconds=600)](https://circleci.com/gh/spletna-postaja/translatable) 
-[![StyleCI](https://github.styleci.io/repos/215050904/shield?branch=master)](https://github.styleci.io/repos/215050904) 
-[![ScrutinizerCI](https://img.shields.io/scrutinizer/quality/g/spletna-postaja/translatable/master?label=ScrutinizerCI&style=flat-square&cacheSeconds=600)](https://scrutinizer-ci.com/g/spletna-postaja/translatable/) 
-[![GitHub issues](https://img.shields.io/github/issues/spletna-postaja/translatable?label=Issues&style=flat-square)](https://github.com/spletna-postaja/translatable/issues) 
-[![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/spletna-postaja/translatable?label=Release&style=flat-square&cacheSeconds=600)](https://github.com/spletna-postaja/translatable)
-[![MIT License](https://img.shields.io/github/license/spletna-postaja/translatable?label=License&color=blue&style=flat-square&cacheSeconds=600)](https://github.com/spletna-postaja/translatable/blob/master/LICENSE)
+[![MIT License](https://img.shields.io/github/license/levgenij/laravel-translatable?label=License&color=blue&style=flat-square&cacheSeconds=600)](https://github.com/levgenij/laravel-translatable/blob/master/LICENSE)
+
+> 🍴 This package is a fork of [laraplus/translatable](https://github.com/laraplus/translatable) (which was later moved to [spletna-postaja/translatable](https://github.com/spletna-postaja/translatable)) and continues to live with new improvements and modern PHP/Laravel support.
 
 This package provides a powerful and transparent way of managing multilingual models in Eloquent.
 
@@ -17,6 +12,8 @@ there is no need to create separate models for translation tables, making this p
 
 * [Quick demo](#quick-demo)
 * [Versions](#versions)
+* [What's new in this fork](#whats-new-in-this-fork)
+* [Known issues](#known-issues)
 * [Installation](#installation)
   * [Configuration in Laravel](#configuration-in-laravel)
   * [Configuration outside Laravel](#configuration-outside-laravel)
@@ -28,7 +25,7 @@ there is no need to create separate models for translation tables, making this p
   * [Updating rows](#updating-rows)
   * [Deleting rows](#deleting-rows)
 * [Translations as a relation](#translations-as-a-relation)
-* [Author and maintenance](#author-and-maintenance)
+* [Alternatives](#alternatives)
 * [License](#licence)
 
 ## Quick demo
@@ -37,7 +34,7 @@ To enable translations in your models, you first need to prepare your schema acc
 [convention](#creating-migrations). After that you can pull in the ``Translatable`` trait:
 
 ```php
-use Laraplus\Data\Translatable;
+use Levgenij\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -80,7 +77,44 @@ Multiple [helpers](#crud-operations) are available for all basic CRUD operations
 | Package | Laravel | PHP |
 | :--- | :--- | :--- |
 | **v1.0.0 - v1.0.22** | `5.2.* - 5.8.*` | `5.6.* / 7.0.* - 7.2.*` |
-| **v2.0.0 - v2.0.*** | `>=6.0` | `>=7.3.*` |
+| **v2.0.0 - v2.0.5** (original) | `>=6.0` | `>=7.3.*` |
+| **v2.1.0+** (this fork) | `11.* / 12.*` | `>=8.2` |
+
+## What's new in this fork
+
+This fork continues development with the following improvements:
+
+- **Modern PHP support**: PHP 8.2+ with strict types and modern syntax
+- **Latest Laravel support**: Laravel 11 and Laravel 12 compatibility
+- **New namespace**: Changed from `Laraplus\Data` to `Levgenij\Translatable`
+- **Bug fixes**: Fixed `withCount()` compatibility - now correctly adds translations when columns are already set
+- **Code quality**: Added `declare(strict_types=1)`, strict parameter and return type declarations
+
+## Known issues
+
+> ⚠️ **Aggregations and complex queries**
+>
+> This package uses automatic JOINs to fetch translated attributes, which may cause unexpected behavior with aggregate functions, `whereHas` with count comparisons, or complex subqueries.
+
+If you experience issues with queries returning incorrect results (e.g., due to multiple translation rows affecting the count), use the `withoutTranslations()` helper to disable the automatic JOIN:
+
+```php
+// ❌ May not work correctly - JOIN with translations affects the count comparison
+Product::query()
+    ->whereHas('categories', function ($query) use ($categoryIds) {
+        $query->whereIn('id', $categoryIds);
+    }, '=', count($categoryIds))
+    ->get();
+
+// ✅ Correct approach - disable translations for complex queries
+Product::query()
+    ->whereHas('categories', function ($query) use ($categoryIds) {
+        $query->withoutTranslations()->whereIn('categories.id', $categoryIds);
+    }, '=', count($categoryIds))
+    ->get();
+```
+
+This also applies to queries with `groupBy()`, `having()`, aggregate functions (`count()`, `sum()`, etc.), or nested subqueries.
 
 ## Installation
 
@@ -88,7 +122,7 @@ This package can be used within Laravel or Lumen applications as well as any oth
 database component https://github.com/illuminate/database. The package can be installed through composer:
 
 ```
-composer require spletna-postaja/translatable
+composer require levgenij/laravel-translatable
 ```
 
 ### Configuration in Laravel
@@ -99,18 +133,18 @@ The package will be auto-discovered in Laravel although you can still manually a
 ```php
 'providers' => [
     // Other providers
-    Laraplus\Data\TranslatableServiceProvider::class,
+    Levgenij\Translatable\TranslatableServiceProvider::class,
 ],
 ```
 
 Optionally you can configure some other options by publishing the ``translatable.php`` configuration file:
 
 ```
-php artisan vendor:publish --provider="Laraplus\Data\TranslatableServiceProvider" --tag="config"
+php artisan vendor:publish --provider="Levgenij\Translatable\TranslatableServiceProvider" --tag="config"
 ```
 
 Open the configuration file to check all available settings:
-https://github.com/spletna-postaja/translatable/blob/master/config/translatable.php
+https://github.com/levgenij/laravel-translatable/blob/master/config/translatable.php
 
 ### Configuration outside Laravel
 
@@ -127,7 +161,7 @@ TranslatableConfig::fallbackLocaleGetter(function() {
 ```
 
 You can optionally adjust some other settings as well. To see all available options inspect Laravel's Service Provider:
-https://github.com/spletna-postaja/translatable/blob/master/src/TranslatableServiceProvider.php
+https://github.com/levgenij/laravel-translatable/blob/master/src/TranslatableServiceProvider.php
 
 ## Creating migrations
 
@@ -171,7 +205,7 @@ tables only) and for incrementing keys (not allowed on translation tables).**
 To make your models aware of the translated attributes you need to pull in the ``Translatable`` trait:
 
 ```php
-use Laraplus\Data\Translatable;
+use Levgenij\Translatable\Translatable;
 use Illuminate\Database\Eloquent\Model;
 
 class Post extends Model
@@ -205,7 +239,7 @@ class Post extends Model
 
 To select rows from your translatable models, you can use all of the usual Eloquent query helpers. Translatable
 attributes will be returned in your current locale. To learn more about how to configure localization in Laravel,
-please refer to the official documentation: https://laravel.com/docs/6.0/localization
+please refer to the official documentation: https://laravel.com/docs/localization
 
 ```php
 Post::where('active', 1)->orderBy('title')->get();
@@ -343,7 +377,7 @@ To update multiple rows at once, you may also use the query builder:
 User::where('published_at', '>', Carbon::now())->update(['title' => 'New title']);
 ```
 
-To update a different locale using the query builder, you can call the ``transleteInto($locale)`` helper:
+To update a different locale using the query builder, you can call the ``translateInto($locale)`` helper:
 
 ```php
 User::where('published_at', '>', Carbon::now())->translateInto('de')->update(['title' => 'New title']);
@@ -398,18 +432,36 @@ User::withAllTranslations()->get();
 **Notice: there is currently limited support for updating and inserting new records using the relation. Instead you
 can use the helpers described above.**
 
-## Author and maintenance
+## Alternatives
 
-Author and lead developer of this project is [Anže Časar](https://github.com/acasar).
+There are other popular packages for making Eloquent models translatable:
 
-This project is supported and maintained by [Spletna postaja](https://spletna-postaja.com/), a web development company.
+| Feature | This package | [spatie/laravel-translatable](https://github.com/spatie/laravel-translatable) | [Astrotomic/laravel-translatable](https://github.com/Astrotomic/laravel-translatable) |
+| :--- | :---: | :---: | :---: |
+| **Storage** | Separate tables | JSON columns | Separate tables |
+| **Separate translation model** | ❌ Not required | ❌ Not required | ✅ Required |
+| **Filter by translated attributes** | ✅ Native SQL | ⚠️ JSON queries | ✅ Via relation |
+| **Sort by translated attributes** | ✅ Native SQL | ⚠️ JSON queries | ❌ Not supported |
+| **Single query for translations** | ✅ JOIN | ✅ Same row | ❌ Eager loading |
+| **Works with aggregations** | ⚠️ Use `withoutTranslations()` | ✅ Yes | ✅ Yes |
+| **Schema changes for new locales** | ❌ Not required | ❌ Not required | ❌ Not required |
+| **Laravel 11/12 support** | ✅ Yes | ✅ Yes | ✅ Yes |
 
-Ta projekt podpira in vzdržuje [Spletna postaja](https://spletna-postaja.com/), podjetje za razvoj in [izdelavo spletnih strani](https://spletna-postaja.com/izdelava-spletnih-strani) in [izdelavo spletnih trgovin](https://spletna-postaja.com/izdelava-spletnih-trgovin).
+### Advantages of this package
 
-[![Twitter](https://img.shields.io/twitter/url?label=Tweet%20about%20this%20project&style=social&url=https%3A%2F%2Fgithub.com%2Fspletna-postaja%2Ftranslatable)](https://twitter.com/intent/tweet?text=Wow:&url=https%3A%2F%2Fgithub.com%2Fspletna-postaja%2Ftranslatable)
+- **True SQL filtering and sorting**: Translations are JOINed to the query, allowing native `WHERE` and `ORDER BY` on translated columns with full index support
+- **No extra models**: Unlike Astrotomic, you don't need to create a separate `PostTranslation` model for each translatable model
+- **Single query**: Fetches model with translations in one query (no N+1 problem, no eager loading needed)
+- **Transparent usage**: After adding the trait, your model works as usual - `$post->title` returns the translated value automatically
+- **Fallback support**: Built-in fallback locale handling at the query level
+
+### When to choose alternatives
+
+- **[spatie/laravel-translatable](https://github.com/spatie/laravel-translatable)**: If you prefer simpler setup with JSON columns and don't need complex filtering/sorting by translated attributes
+- **[Astrotomic/laravel-translatable](https://github.com/Astrotomic/laravel-translatable)**: If you need full control over translation models or have complex aggregation queries that conflict with automatic JOINs
 
 ## License
 
 This project is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
 
-[![MIT License](https://img.shields.io/github/license/spletna-postaja/translatable?label=License&color=blue&style=flat-square&cacheSeconds=600)](https://github.com/spletna-postaja/translatable/blob/master/LICENSE)
+[![MIT License](https://img.shields.io/github/license/levgenij/laravel-translatable?label=License&color=blue&style=flat-square&cacheSeconds=600)](https://github.com/levgenij/laravel-translatable/blob/master/LICENSE)
