@@ -25,6 +25,7 @@ there is no need to create separate models for translation tables, making this p
   * [Updating rows](#updating-rows)
   * [Deleting rows](#deleting-rows)
 * [Translations as a relation](#translations-as-a-relation)
+* [Filament PHP integration](#filament-php-integration)
 * [Alternatives](#alternatives)
 * [License](#licence)
 
@@ -431,6 +432,47 @@ User::withAllTranslations()->get();
 
 **Notice: there is currently limited support for updating and inserting new records using the relation. Instead you
 can use the helpers described above.**
+
+## Filament PHP integration
+
+If you're using [Filament PHP](https://filamentphp.com/) for your admin panel, check out the companion package [levgenij/filament-translatable](https://github.com/Levgenij/filament-translatable) that provides seamless multilingual support for Filament Resources.
+
+**Features:**
+
+- **Zero Configuration** — Translatable fields are detected automatically from the model's `$translatable` property
+- **Language Tabs** — Fields are grouped into tabs for each configured locale
+- **Locale Badges** — Visual indicators next to field labels (e.g., `Title [EN]`)
+- **Clean Form Schema** — No wrappers or special syntax needed in your form definitions
+- **Single Locale Mode** — No tabs or badges when only one locale is configured
+
+**Quick setup:**
+
+```bash
+composer require levgenij/filament-translatable
+```
+
+```php
+use Levgenij\FilamentTranslatable\Concerns\TranslatableResource;
+use Levgenij\FilamentTranslatable\Concerns\HasTranslatableFields;
+
+class CategoryResource extends Resource
+{
+    use TranslatableResource;
+    // ... your form schema with translatable fields works automatically
+}
+
+class CreateCategory extends CreateRecord
+{
+    use HasTranslatableFields;
+}
+
+class EditCategory extends EditRecord
+{
+    use HasTranslatableFields;
+}
+```
+
+For full documentation and configuration options, visit the [filament-translatable repository](https://github.com/Levgenij/filament-translatable).
 
 ## Alternatives
 

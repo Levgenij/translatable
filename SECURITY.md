@@ -9,5 +9,5 @@ We will do our best to fix security issues and inform all users about possible i
 ## Reporting a Vulnerability
 
 Because security vulnerabilities could harm users we please you to don't use the public issue tracker to report them.
-Please write a mail to [razvijalec@spletna-postaja.com](mailto:razvijalec@spletna-postaja.com).
+Please write a mail to [e.lypei@redentu.com](mailto:e.lypei@redentu.com).
 Depending on the kind of issue we will create a public issue/security alert or fix it and inform afterwards.
